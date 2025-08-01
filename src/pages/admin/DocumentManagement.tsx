@@ -32,6 +32,7 @@ interface Document {
   is_pinned: boolean;
   category: string;
   created_at: string;
+  html_content?: string;
 }
 
 const DocumentManagement = () => {
@@ -49,6 +50,7 @@ const DocumentManagement = () => {
     description: "",
     category: "general",
     is_pinned: false,
+    html_content: "",
   });
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
@@ -169,6 +171,7 @@ const DocumentManagement = () => {
             is_pinned: formData.is_pinned,
             file_url: fileUrl,
             file_type: fileType,
+            html_content: formData.html_content,
           })
           .eq('id', editingDoc.id);
 
@@ -189,6 +192,7 @@ const DocumentManagement = () => {
             file_url: fileUrl,
             file_type: fileType,
             created_by: user.id,
+            html_content: formData.html_content,
           });
 
         if (error) throw error;
@@ -202,7 +206,7 @@ const DocumentManagement = () => {
       setIsDialogOpen(false);
       setEditingDoc(null);
       setSelectedFile(null);
-      setFormData({ title: "", description: "", category: "general", is_pinned: false });
+      setFormData({ title: "", description: "", category: "general", is_pinned: false, html_content: "" });
       fetchDocuments();
     } catch (error: any) {
       toast({
@@ -222,6 +226,7 @@ const DocumentManagement = () => {
       description: doc.description || "",
       category: doc.category,
       is_pinned: doc.is_pinned,
+      html_content: doc.html_content || "",
     });
     setSelectedFile(null);
     setIsDialogOpen(true);
@@ -279,7 +284,7 @@ const DocumentManagement = () => {
 
   const handleNewDocument = () => {
     setEditingDoc(null);
-    setFormData({ title: "", description: "", category: "general", is_pinned: false });
+    setFormData({ title: "", description: "", category: "general", is_pinned: false, html_content: "" });
     setSelectedFile(null);
     setIsDialogOpen(true);
   };
@@ -514,8 +519,23 @@ const DocumentManagement = () => {
                 </Select>
               </div>
 
+               <div>
+                <Label htmlFor="html_content">Nội dung HTML (Tùy chọn)</Label>
+                <Textarea
+                  id="html_content"
+                  value={formData.html_content}
+                  onChange={(e) => setFormData(prev => ({ ...prev, html_content: e.target.value }))}
+                  placeholder="Nhập HTML code để tạo trang web sống động..."
+                  rows={8}
+                  className="font-mono text-sm"
+                />
+                <p className="text-sm text-muted-foreground mt-1">
+                  Nếu có HTML content, nút "Xem" sẽ hiển thị trang web thay vì mở file
+                </p>
+              </div>
+
               <div>
-                <Label htmlFor="file">File tài liệu {!editingDoc && "*"}</Label>
+                <Label htmlFor="file">File tài liệu {!editingDoc && !formData.html_content && "*"}</Label>
                 <div className="mt-2">
                   <input
                     id="file"

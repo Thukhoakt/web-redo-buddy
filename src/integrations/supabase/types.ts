@@ -57,6 +57,7 @@ export type Database = {
           description: string | null
           file_type: string
           file_url: string
+          html_content: string | null
           id: string
           is_pinned: boolean | null
           title: string
@@ -69,6 +70,7 @@ export type Database = {
           description?: string | null
           file_type: string
           file_url: string
+          html_content?: string | null
           id?: string
           is_pinned?: boolean | null
           title: string
@@ -81,6 +83,7 @@ export type Database = {
           description?: string | null
           file_type?: string
           file_url?: string
+          html_content?: string | null
           id?: string
           is_pinned?: boolean | null
           title?: string

@@ -4,7 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Pin, Download, Eye } from "lucide-react";
+import { Pin, Download } from "lucide-react";
+import { DocumentViewer } from "@/components/DocumentViewer";
 
 interface Document {
   id: string;
@@ -15,6 +16,7 @@ interface Document {
   is_pinned: boolean;
   category: string;
   created_at: string;
+  html_content?: string;
 }
 
 const ELearning = () => {
@@ -121,12 +123,7 @@ const ELearning = () => {
                             </p>
                           )}
                           <div className="flex gap-2">
-                            <Button asChild variant="outline" size="sm" className="flex-1">
-                              <a href={doc.file_url} target="_blank" rel="noopener noreferrer">
-                                <Eye className="h-4 w-4 mr-2" />
-                                Xem
-                              </a>
-                            </Button>
+                            <DocumentViewer document={doc} />
                             <Button asChild variant="default" size="sm" className="flex-1">
                               <a href={doc.file_url} download>
                                 <Download className="h-4 w-4 mr-2" />
@@ -171,12 +168,7 @@ const ELearning = () => {
                           </p>
                         )}
                         <div className="flex gap-2">
-                          <Button asChild variant="outline" size="sm" className="flex-1">
-                            <a href={doc.file_url} target="_blank" rel="noopener noreferrer">
-                              <Eye className="h-4 w-4 mr-2" />
-                              Xem
-                            </a>
-                          </Button>
+                          <DocumentViewer document={doc} />
                           <Button asChild variant="default" size="sm" className="flex-1">
                             <a href={doc.file_url} download>
                               <Download className="h-4 w-4 mr-2" />
