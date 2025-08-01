@@ -20,6 +20,8 @@ interface HeaderProps {
   isAdmin: boolean;
 }
 
+
+
 interface Tag {
   id: string;
   name: string;
@@ -28,6 +30,7 @@ interface Tag {
 }
 
 const Header = ({ user, isAdmin }: HeaderProps) => {
+  console.log('Header received props:', { user: !!user, isAdmin });
   const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();

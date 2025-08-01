@@ -46,13 +46,25 @@ const Layout = ({ children }: LayoutProps) => {
 
   const checkAdminRole = async (userId: string) => {
     try {
-      const { data, error } = await supabase.rpc('has_role', {
-        _user_id: userId,
-        _role: 'admin'
-      });
+      console.log('Checking admin role for user:', userId);
+      
+      // Thay đổi cách kiểm tra: query trực tiếp từ user_roles table
+      const { data, error } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', userId)
+        .eq('role', 'admin')
+        .limit(1);
+      
+      console.log('Admin role check result:', { data, error });
       
       if (!error) {
-        setIsAdmin(data);
+        const hasAdminRole = data && data.length > 0;
+        setIsAdmin(hasAdminRole);
+        console.log('Admin status set to:', hasAdminRole);
+      } else {
+        console.error('Admin role check error:', error);
+        setIsAdmin(false);
       }
     } catch (error) {
       console.error('Error checking admin role:', error);
