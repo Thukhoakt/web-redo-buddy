@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { Resend } from "npm:resend@2.0.0";
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
+console.log("Welcome email function started with API key:", Deno.env.get("RESEND_API_KEY") ? "✓ API key found" : "✗ API key missing");
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -21,6 +22,7 @@ const handler = async (req: Request): Promise<Response> => {
 
   try {
     const { name, email }: WelcomeEmailRequest = await req.json();
+    console.log("Processing welcome email request:", JSON.stringify({ name, email }));
 
     const emailResponse = await resend.emails.send({
       from: "John Deus <onboarding@resend.dev>",
@@ -61,6 +63,7 @@ const handler = async (req: Request): Promise<Response> => {
       `,
     });
 
+    console.log("Email sent successfully:", emailResponse);
     return new Response(JSON.stringify(emailResponse), {
       status: 200,
       headers: {
