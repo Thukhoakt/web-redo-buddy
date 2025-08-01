@@ -49,6 +49,22 @@ const EmailSubscriptionModal = ({ isOpen, onClose }: EmailSubscriptionModalProps
           throw error;
         }
       } else {
+        // Send welcome email
+        try {
+          const { data, error: emailError } = await supabase.functions.invoke('send-welcome-email', {
+            body: {
+              name: formData.name,
+              email: formData.email,
+            },
+          });
+
+          if (emailError) {
+            console.error('Error sending welcome email:', emailError);
+          }
+        } catch (emailError) {
+          console.error('Error sending welcome email:', emailError);
+        }
+
         toast({
           title: "Đăng ký thành công!",
           description: "Cảm ơn bạn đã đăng ký. Chúng tôi sẽ gửi cho bạn những thông tin mới nhất.",

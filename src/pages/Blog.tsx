@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { CalendarDays, User, Search } from "lucide-react";
+import { CalendarDays, User, Search, Clock } from "lucide-react";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
 
@@ -32,6 +32,7 @@ interface Tag {
 
 const Blog = () => {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const [posts, setPosts] = useState<Post[]>([]);
   const [tags, setTags] = useState<Tag[]>([]);
   const [loading, setLoading] = useState(true);
@@ -227,7 +228,11 @@ const Blog = () => {
         ) : filteredPosts.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {filteredPosts.map((post) => (
-              <Card key={post.id} className="group hover:shadow-hover transition-all duration-300 transform hover:-translate-y-1">
+              <Card 
+                key={post.id} 
+                className="group hover:shadow-hover transition-all duration-300 transform hover:-translate-y-1 cursor-pointer"
+                onClick={() => navigate(`/blog/${post.id}`)}
+              >
                 <div className="aspect-video overflow-hidden rounded-t-lg">
                   {post.featured_image ? (
                     <img
@@ -284,11 +289,6 @@ const Blog = () => {
                     </div>
                   )}
                   
-                  <Button asChild variant="outline" className="w-full">
-                    <Link to={`/blog/${post.id}`}>
-                      Đọc tiếp
-                    </Link>
-                  </Button>
                 </CardContent>
               </Card>
             ))}

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { 
   DropdownMenu, 
@@ -29,6 +29,7 @@ interface Tag {
 
 const Header = ({ user, isAdmin }: HeaderProps) => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { toast } = useToast();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -261,7 +262,7 @@ const Header = ({ user, isAdmin }: HeaderProps) => {
             <Button 
               variant="ghost" 
               size="icon"
-              onClick={() => setIsSearchOpen(!isSearchOpen)}
+              onClick={() => navigate('/blog')}
             >
               <Search className="h-5 w-5" />
             </Button>
