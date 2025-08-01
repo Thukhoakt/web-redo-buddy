@@ -13,6 +13,7 @@ import { Search, User, LogOut, Settings, FileText, Users, ChevronDown, Menu, X }
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import EmailSubscriptionModal from "@/components/EmailSubscriptionModal";
 
 interface HeaderProps {
   user: any;
@@ -31,6 +32,7 @@ const Header = ({ user, isAdmin }: HeaderProps) => {
   const { toast } = useToast();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
   const [tags, setTags] = useState<Tag[]>([]);
 
   useEffect(() => {
@@ -54,9 +56,8 @@ const Header = ({ user, isAdmin }: HeaderProps) => {
   const navigation = [
     { name: "HOME", href: "/", current: location.pathname === "/" },
     { name: "YOUTUBE", href: "#", current: false },
-    { name: "Email", href: "#", current: false },
-    { name: "TÀI LIỆU", href: "#", current: false },
-    { name: "E-learning", href: "#", current: false },
+    { name: "TÀI LIỆU", href: "/elearning", current: location.pathname === "/elearning" },
+    { name: "E-learning", href: "/elearning", current: location.pathname === "/elearning" },
   ];
 
   const handleSignOut = async () => {
@@ -99,6 +100,14 @@ const Header = ({ user, isAdmin }: HeaderProps) => {
                 {item.name}
               </Link>
             ))}
+            
+            {/* Email Link */}
+            <button
+              onClick={() => setIsEmailModalOpen(true)}
+              className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
+            >
+              Email
+            </button>
             
             {/* Blog Dropdown */}
             <DropdownMenu>
@@ -156,6 +165,16 @@ const Header = ({ user, isAdmin }: HeaderProps) => {
                     </Link>
                   ))}
                   
+                  <button
+                    onClick={() => {
+                      setIsEmailModalOpen(true);
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className="text-lg font-medium text-foreground hover:text-primary transition-colors text-left"
+                  >
+                    Email
+                  </button>
+                  
                   <div className="border-t pt-4">
                     <h3 className="text-lg font-medium text-foreground mb-3">Blog</h3>
                     <Link
@@ -184,13 +203,29 @@ const Header = ({ user, isAdmin }: HeaderProps) => {
                   {user && (
                     <div className="border-t pt-4">
                       {isAdmin && (
-                        <Link
-                          to="/create-post"
-                          onClick={() => setIsMobileMenuOpen(false)}
-                          className="block text-muted-foreground hover:text-primary transition-colors mb-2"
-                        >
-                          Tạo bài viết
-                        </Link>
+                        <>
+                          <Link
+                            to="/create-post"
+                            onClick={() => setIsMobileMenuOpen(false)}
+                            className="block text-muted-foreground hover:text-primary transition-colors mb-2"
+                          >
+                            Tạo bài viết
+                          </Link>
+                          <Link
+                            to="/admin/tags"
+                            onClick={() => setIsMobileMenuOpen(false)}
+                            className="block text-muted-foreground hover:text-primary transition-colors mb-2"
+                          >
+                            Quản lý Tags
+                          </Link>
+                          <Link
+                            to="/admin/documents"
+                            onClick={() => setIsMobileMenuOpen(false)}
+                            className="block text-muted-foreground hover:text-primary transition-colors mb-2"
+                          >
+                            Quản lý Tài liệu
+                          </Link>
+                        </>
                       )}
                       <button
                         onClick={() => {
@@ -272,6 +307,22 @@ const Header = ({ user, isAdmin }: HeaderProps) => {
                       </Link>
                     </DropdownMenuItem>
                     {isAdmin && (
+                      <>
+                        <DropdownMenuItem asChild>
+                          <Link to="/admin/tags">
+                            <Settings className="mr-2 h-4 w-4" />
+                            Quản lý Tags
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <Link to="/admin/documents">
+                            <FileText className="mr-2 h-4 w-4" />
+                            Quản lý Tài liệu
+                          </Link>
+                        </DropdownMenuItem>
+                      </>
+                    )}
+                    {isAdmin && (
                       <DropdownMenuItem asChild>
                         <Link to="/admin/users">
                           <Users className="mr-2 h-4 w-4" />
@@ -282,7 +333,7 @@ const Header = ({ user, isAdmin }: HeaderProps) => {
                     <DropdownMenuItem asChild>
                       <Link to="/settings">
                         <Settings className="mr-2 h-4 w-4" />
-                        Đăng xuất
+                        Cài đặt
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
@@ -301,6 +352,12 @@ const Header = ({ user, isAdmin }: HeaderProps) => {
           </div>
         </div>
       </div>
+      
+      {/* Email Subscription Modal */}
+      <EmailSubscriptionModal 
+        isOpen={isEmailModalOpen} 
+        onClose={() => setIsEmailModalOpen(false)} 
+      />
     </header>
   );
 };

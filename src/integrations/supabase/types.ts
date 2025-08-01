@@ -49,6 +49,69 @@ export type Database = {
           },
         ]
       }
+      documents: {
+        Row: {
+          category: string | null
+          created_at: string
+          created_by: string
+          description: string | null
+          file_type: string
+          file_url: string
+          id: string
+          is_pinned: boolean | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          created_by: string
+          description?: string | null
+          file_type: string
+          file_url: string
+          id?: string
+          is_pinned?: boolean | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          file_type?: string
+          file_url?: string
+          id?: string
+          is_pinned?: boolean | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      email_subscribers: {
+        Row: {
+          email: string
+          id: string
+          is_active: boolean | null
+          name: string | null
+          subscribed_at: string
+        }
+        Insert: {
+          email: string
+          id?: string
+          is_active?: boolean | null
+          name?: string | null
+          subscribed_at?: string
+        }
+        Update: {
+          email?: string
+          id?: string
+          is_active?: boolean | null
+          name?: string | null
+          subscribed_at?: string
+        }
+        Relationships: []
+      }
       posts: {
         Row: {
           author_id: string
