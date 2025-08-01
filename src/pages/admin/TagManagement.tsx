@@ -12,7 +12,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 
 interface Tag {
@@ -26,6 +25,8 @@ interface Tag {
 const TagManagement = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [user, setUser] = useState<any>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [tags, setTags] = useState<Tag[]>([]);
   const [loading, setLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -37,33 +38,41 @@ const TagManagement = () => {
     color: "#3b82f6",
   });
 
+  // Check authentication and admin status
   useEffect(() => {
-    checkUserRole();
-    fetchTags();
-  }, []);
-
-  const checkUserRole = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      navigate("/auth");
-      return;
-    }
-
-    const { data: userRole } = await supabase
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', user.id)
-      .single();
-
-    if (!userRole || userRole.role !== 'admin') {
-      toast({
-        title: "Không có quyền truy cập",
-        description: "Bạn cần quyền admin để quản lý tags.",
-        variant: "destructive",
-      });
-      navigate("/");
-    }
-  };
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) {
+        navigate('/auth');
+        return;
+      }
+      
+      setUser(session.user);
+      
+      // Check admin role
+      const { data, error } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', session.user.id)
+        .eq('role', 'admin')
+        .limit(1);
+        
+      if (!error && data && data.length > 0) {
+        setIsAdmin(true);
+        fetchTags();
+      } else {
+        toast({
+          title: "Không có quyền truy cập",
+          description: "Bạn cần quyền admin để truy cập trang này.",
+          variant: "destructive",
+        });
+        navigate('/');
+        return;
+      }
+    };
+    
+    checkAuth();
+  }, [navigate, toast]);
 
   const fetchTags = async () => {
     try {
@@ -188,6 +197,14 @@ const TagManagement = () => {
     setFormData({ name: "", slug: "", description: "", color: "#3b82f6" });
     setIsDialogOpen(true);
   };
+
+  if (!user || !isAdmin) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (

@@ -30,7 +30,6 @@ interface Tag {
 }
 
 const Header = ({ user, isAdmin }: HeaderProps) => {
-  console.log('Header received props:', { user: !!user, isAdmin });
   const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -274,7 +273,7 @@ const Header = ({ user, isAdmin }: HeaderProps) => {
               <div className="flex items-center space-x-4">
                 {/* Create Post Button (Admin only) */}
                 {isAdmin && (
-                  <Button asChild variant="default">
+                  <Button asChild variant="default" className="bg-gradient-hero hover:opacity-90">
                     <Link to="/create-post">
                       <FileText className="h-4 w-4 mr-2" />
                       Tạo bài
@@ -310,36 +309,39 @@ const Header = ({ user, isAdmin }: HeaderProps) => {
                         User
                       </Link>
                     </DropdownMenuItem>
-                    {isAdmin && (
-                      <>
-                        <DropdownMenuItem asChild>
-                          <Link to="/admin/tags">
-                            <Settings className="mr-2 h-4 w-4" />
-                            Quản lý Tags
-                          </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem asChild>
-                          <Link to="/admin/documents">
-                            <FileText className="mr-2 h-4 w-4" />
-                            Quản lý Tài liệu
-                          </Link>
-                        </DropdownMenuItem>
-                      </>
-                    )}
-                    {isAdmin && (
-                      <DropdownMenuItem asChild>
-                        <Link to="/admin/users">
-                          <Users className="mr-2 h-4 w-4" />
-                          Quản lý người dùng
-                        </Link>
-                      </DropdownMenuItem>
-                    )}
-                    <DropdownMenuItem asChild>
-                      <Link to="/settings">
-                        <Settings className="mr-2 h-4 w-4" />
-                        Cài đặt
-                      </Link>
-                    </DropdownMenuItem>
+                     {isAdmin && (
+                       <>
+                         <DropdownMenuSeparator />
+                         <div className="px-2 py-1.5 text-xs font-medium text-muted-foreground">
+                           Admin Tools
+                         </div>
+                         <DropdownMenuItem asChild>
+                           <Link to="/admin/tags" className="cursor-pointer">
+                             <Settings className="mr-2 h-4 w-4" />
+                             Quản lý Tags
+                           </Link>
+                         </DropdownMenuItem>
+                         <DropdownMenuItem asChild>
+                           <Link to="/admin/documents" className="cursor-pointer">
+                             <FileText className="mr-2 h-4 w-4" />
+                             Quản lý Tài liệu
+                           </Link>
+                         </DropdownMenuItem>
+                          <DropdownMenuItem asChild>
+                            <Link to="/admin/users" className="cursor-pointer">
+                              <Users className="mr-2 h-4 w-4" />
+                              Quản lý người dùng
+                            </Link>
+                          </DropdownMenuItem>
+                        </>
+                      )}
+                     <DropdownMenuSeparator />
+                     <DropdownMenuItem asChild>
+                       <Link to="/settings">
+                         <Settings className="mr-2 h-4 w-4" />
+                         Cài đặt
+                       </Link>
+                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={handleSignOut}>
                       <LogOut className="mr-2 h-4 w-4" />
