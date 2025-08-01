@@ -37,6 +37,8 @@ interface Document {
 const DocumentManagement = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [user, setUser] = useState<any>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [documents, setDocuments] = useState<Document[]>([]);
   const [loading, setLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -59,33 +61,42 @@ const DocumentManagement = () => {
     { value: "resource", label: "Tài nguyên" },
   ];
 
+  // Check authentication and admin status
   useEffect(() => {
-    checkUserRole();
-    fetchDocuments();
-  }, []);
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) {
+        navigate('/auth');
+        return;
+      }
+      
+      setUser(session.user);
+      
+      // Check admin role
+      const { data, error } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', session.user.id)
+        .eq('role', 'admin')
+        .limit(1);
+        
+      if (!error && data && data.length > 0) {
+        setIsAdmin(true);
+        fetchDocuments();
+      } else {
+        toast({
+          title: "Không có quyền truy cập",
+          description: "Bạn cần quyền admin để quản lý tài liệu.",
+          variant: "destructive",
+        });
+        navigate('/');
+        return;
+      }
+    };
+    
+    checkAuth();
+  }, [navigate, toast]);
 
-  const checkUserRole = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      navigate("/auth");
-      return;
-    }
-
-    const { data: userRole } = await supabase
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', user.id)
-      .single();
-
-    if (!userRole || userRole.role !== 'admin') {
-      toast({
-        title: "Không có quyền truy cập",
-        description: "Bạn cần quyền admin để quản lý tài liệu.",
-        variant: "destructive",
-      });
-      navigate("/");
-    }
-  };
 
   const fetchDocuments = async () => {
     try {
@@ -272,6 +283,14 @@ const DocumentManagement = () => {
     setSelectedFile(null);
     setIsDialogOpen(true);
   };
+
+  if (!user || !isAdmin) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (

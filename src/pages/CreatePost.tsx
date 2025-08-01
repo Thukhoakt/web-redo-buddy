@@ -21,11 +21,49 @@ interface Tag {
 const CreatePost = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [user, setUser] = useState<any>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(false);
   const [availableTags, setAvailableTags] = useState<Tag[]>([]);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>("");
+  
+  // Check authentication and admin status
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) {
+        navigate('/auth');
+        return;
+      }
+      
+      setUser(session.user);
+      
+      // Check admin role
+      const { data, error } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', session.user.id)
+        .eq('role', 'admin')
+        .limit(1);
+        
+      if (!error && data && data.length > 0) {
+        setIsAdmin(true);
+        fetchTags();
+      } else {
+        toast({
+          title: "Không có quyền truy cập",
+          description: "Bạn cần quyền admin để tạo bài viết.",
+          variant: "destructive",
+        });
+        navigate('/');
+        return;
+      }
+    };
+    
+    checkAuth();
+  }, [navigate, toast]);
   
   const [formData, setFormData] = useState({
     title: "",
@@ -34,33 +72,6 @@ const CreatePost = () => {
     published: false,
   });
 
-  useEffect(() => {
-    fetchTags();
-    checkUserRole();
-  }, []);
-
-  const checkUserRole = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      navigate("/auth");
-      return;
-    }
-
-    const { data: userRole } = await supabase
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', user.id)
-      .single();
-
-    if (!userRole || userRole.role !== 'admin') {
-      toast({
-        title: "Không có quyền truy cập",
-        description: "Bạn cần quyền admin để tạo bài viết.",
-        variant: "destructive",
-      });
-      navigate("/");
-    }
-  };
 
   const fetchTags = async () => {
     const { data, error } = await supabase
@@ -160,6 +171,14 @@ const CreatePost = () => {
       setLoading(false);
     }
   };
+
+  if (!user || !isAdmin) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background py-8">

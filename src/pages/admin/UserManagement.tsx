@@ -21,17 +21,50 @@ interface UserProfile {
 }
 
 const UserManagement = () => {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const [user, setUser] = useState<any>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredUsers, setFilteredUsers] = useState<UserProfile[]>([]);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const navigate = useNavigate();
-  const { toast } = useToast();
-
+  
+  // Check authentication and admin status
   useEffect(() => {
-    checkAdminAndFetchUsers();
-  }, []);
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) {
+        navigate('/auth');
+        return;
+      }
+      
+      setUser(session.user);
+      
+      // Check admin role
+      const { data, error } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', session.user.id)
+        .eq('role', 'admin')
+        .limit(1);
+        
+      if (!error && data && data.length > 0) {
+        setIsAdmin(true);
+        fetchUsers();
+      } else {
+        toast({
+          title: "Không có quyền truy cập",
+          description: "Bạn cần quyền admin để quản lý người dùng.",
+          variant: "destructive",
+        });
+        navigate('/');
+        return;
+      }
+    };
+    
+    checkAuth();
+  }, [navigate, toast]);
 
   useEffect(() => {
     if (searchTerm) {
@@ -46,39 +79,6 @@ const UserManagement = () => {
       setFilteredUsers(users);
     }
   }, [searchTerm, users]);
-
-  const checkAdminAndFetchUsers = async () => {
-    try {
-      // Check if current user is admin
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!session) {
-        navigate('/auth');
-        return;
-      }
-
-      const { data: adminCheck, error: adminError } = await supabase.rpc('has_role', {
-        _user_id: session.user.id,
-        _role: 'admin'
-      });
-
-      if (adminError || !adminCheck) {
-        toast({
-          title: "Không có quyền truy cập",
-          description: "Bạn cần quyền admin để truy cập trang này.",
-          variant: "destructive",
-        });
-        navigate('/');
-        return;
-      }
-
-      setIsAdmin(true);
-      await fetchUsers();
-    } catch (error) {
-      console.error('Error checking admin status:', error);
-      navigate('/');
-    }
-  };
 
   const fetchUsers = async () => {
     try {
@@ -122,8 +122,12 @@ const UserManagement = () => {
     }
   };
 
-  if (!isAdmin) {
-    return null; // Component will navigate away if not admin
+  if (!user || !isAdmin) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+      </div>
+    );
   }
 
   return (
