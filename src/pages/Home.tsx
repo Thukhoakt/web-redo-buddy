@@ -177,35 +177,6 @@ const Home = () => {
         </div>
       </section>
 
-      {/* About Section */}
-      <section className="bg-muted py-16 lg:py-24">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-8">
-              Về John Deus
-            </h2>
-            <p className="text-lg text-muted-foreground mb-8">
-              Chào mừng bạn đến với không gian chia sẻ của John Deus.
-            </p>
-            <div className="flex flex-wrap justify-center gap-4">
-              <Badge variant="secondary" className="text-sm px-4 py-2">React</Badge>
-              <Badge variant="secondary" className="text-sm px-4 py-2">TypeScript</Badge>
-              <Badge variant="secondary" className="text-sm px-4 py-2">Node.js</Badge>
-              <Badge variant="secondary" className="text-sm px-4 py-2">Python</Badge>
-              <Badge variant="secondary" className="text-sm px-4 py-2">Machine Learning</Badge>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="bg-muted py-8 border-t">
-        <div className="container mx-auto px-4 text-center">
-          <p className="text-muted-foreground">
-            © {new Date().getFullYear()} John Deus. All rights reserved.
-          </p>
-        </div>
-      </footer>
     </div>
   );
 };

@@ -121,6 +121,7 @@ export type Database = {
           featured_image: string | null
           id: string
           published: boolean | null
+          reading_time: number | null
           tags: string[] | null
           title: string
           updated_at: string | null
@@ -133,6 +134,7 @@ export type Database = {
           featured_image?: string | null
           id?: string
           published?: boolean | null
+          reading_time?: number | null
           tags?: string[] | null
           title: string
           updated_at?: string | null
@@ -145,6 +147,7 @@ export type Database = {
           featured_image?: string | null
           id?: string
           published?: boolean | null
+          reading_time?: number | null
           tags?: string[] | null
           title?: string
           updated_at?: string | null
@@ -186,6 +189,35 @@ export type Database = {
           username?: string | null
         }
         Relationships: []
+      }
+      saved_posts: {
+        Row: {
+          created_at: string
+          id: string
+          post_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          post_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          post_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "saved_posts_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       tags: {
         Row: {

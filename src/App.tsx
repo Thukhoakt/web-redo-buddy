@@ -13,6 +13,7 @@ import ELearning from "./pages/ELearning";
 import UserManagement from "./pages/admin/UserManagement";
 import TagManagement from "./pages/admin/TagManagement";
 import DocumentManagement from "./pages/admin/DocumentManagement";
+import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -34,6 +35,7 @@ const App = () => (
             <Route path="/admin/users" element={<UserManagement />} />
             <Route path="/admin/tags" element={<TagManagement />} />
             <Route path="/admin/documents" element={<DocumentManagement />} />
+            <Route path="/profile" element={<Profile />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Layout>
