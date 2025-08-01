@@ -75,7 +75,7 @@ const Home = () => {
           </h1>
           <div className="w-24 h-1 bg-primary mx-auto mb-8"></div>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Chia sẻ kiến thức và kinh nghiệm về công nghệ, lập trình và cuộc sống
+            Chào mừng đến với blog cá nhân của John Deus
           </p>
         </div>
       </section>
@@ -185,9 +185,7 @@ const Home = () => {
               Về John Deus
             </h2>
             <p className="text-lg text-muted-foreground mb-8">
-              Tôi là một lập trình viên đam mê công nghệ và chia sẻ kiến thức. 
-              Qua blog này, tôi muốn chia sẻ những kinh nghiệm, kiến thức và 
-              những điều thú vị trong thế giới lập trình và công nghệ.
+              Chào mừng bạn đến với không gian chia sẻ của John Deus.
             </p>
             <div className="flex flex-wrap justify-center gap-4">
               <Badge variant="secondary" className="text-sm px-4 py-2">React</Badge>
@@ -199,6 +197,15 @@ const Home = () => {
           </div>
         </div>
       </section>
+
+      {/* Footer */}
+      <footer className="bg-muted py-8 border-t">
+        <div className="container mx-auto px-4 text-center">
+          <p className="text-muted-foreground">
+            © {new Date().getFullYear()} John Deus. All rights reserved.
+          </p>
+        </div>
+      </footer>
     </div>
   );
 };

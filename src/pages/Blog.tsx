@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -16,33 +16,63 @@ interface Post {
   featured_image: string;
   created_at: string;
   author_id: string;
+  tags: string[];
   profiles: {
     full_name: string;
     username: string;
   };
 }
 
+interface Tag {
+  id: string;
+  name: string;
+  slug: string;
+  color: string;
+}
+
 const Blog = () => {
+  const [searchParams] = useSearchParams();
   const [posts, setPosts] = useState<Post[]>([]);
+  const [tags, setTags] = useState<Tag[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedTag, setSelectedTag] = useState("");
   const [filteredPosts, setFilteredPosts] = useState<Post[]>([]);
 
   useEffect(() => {
     fetchPosts();
-  }, []);
+    fetchTags();
+    
+    // Get tag from URL params
+    const tagFromUrl = searchParams.get('tag');
+    if (tagFromUrl) {
+      setSelectedTag(tagFromUrl);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
+    let filtered = posts;
+
+    // Filter by search term
     if (searchTerm) {
-      const filtered = posts.filter(post =>
+      filtered = filtered.filter(post =>
         post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         post.excerpt?.toLowerCase().includes(searchTerm.toLowerCase())
       );
-      setFilteredPosts(filtered);
-    } else {
-      setFilteredPosts(posts);
     }
-  }, [searchTerm, posts]);
+
+    // Filter by selected tag
+    if (selectedTag) {
+      filtered = filtered.filter(post =>
+        post.tags && post.tags.some(tag => 
+          tag.toLowerCase().replace(/\s+/g, '-') === selectedTag ||
+          tag.toLowerCase() === selectedTag
+        )
+      );
+    }
+
+    setFilteredPosts(filtered);
+  }, [searchTerm, selectedTag, posts]);
 
   const fetchPosts = async () => {
     try {
@@ -79,32 +109,100 @@ const Blog = () => {
     }
   };
 
+  const fetchTags = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('tags')
+        .select('*')
+        .order('name');
+      
+      if (error) throw error;
+      setTags(data || []);
+    } catch (error) {
+      console.error('Error fetching tags:', error);
+    }
+  };
+
+  const getTagBySlug = (slug: string) => {
+    return tags.find(tag => tag.slug === slug);
+  };
+
   return (
     <div className="min-h-screen bg-background py-8">
       <div className="container mx-auto px-4">
         {/* Header */}
         <div className="text-center mb-12">
           <h1 className="text-4xl lg:text-5xl font-bold text-foreground mb-4">
-            Blog
+            {selectedTag ? (getTagBySlug(selectedTag)?.name || selectedTag) : 'Blog'}
           </h1>
           <div className="w-16 h-1 bg-primary mx-auto mb-6"></div>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Khám phá những bài viết mới nhất về công nghệ, lập trình và nhiều chủ đề thú vị khác
+            {selectedTag 
+              ? `Bài viết về ${getTagBySlug(selectedTag)?.name || selectedTag}`
+              : 'Khám phá những bài viết mới nhất về công nghệ, lập trình và nhiều chủ đề thú vị khác'
+            }
           </p>
         </div>
 
-        {/* Search */}
-        <div className="max-w-md mx-auto mb-12">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-            <Input
-              type="text"
-              placeholder="Tìm kiếm bài viết..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
-            />
+        {/* Search and Filters */}
+        <div className="max-w-4xl mx-auto mb-12">
+          <div className="flex flex-col md:flex-row gap-4">
+            {/* Search */}
+            <div className="flex-1">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                <Input
+                  type="text"
+                  placeholder="Tìm kiếm bài viết..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+            </div>
+            
+            {/* Tag Filter */}
+            <div className="md:w-64">
+              <select
+                value={selectedTag}
+                onChange={(e) => setSelectedTag(e.target.value)}
+                className="w-full px-3 py-2 border border-input bg-background rounded-md text-sm"
+              >
+                <option value="">Tất cả danh mục</option>
+                {tags.map((tag) => (
+                  <option key={tag.id} value={tag.slug}>
+                    {tag.name}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
+          
+          {/* Active filters */}
+          {(selectedTag || searchTerm) && (
+            <div className="mt-4 flex flex-wrap gap-2">
+              {selectedTag && (
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => setSelectedTag("")}
+                  className="text-xs"
+                >
+                  {getTagBySlug(selectedTag)?.name || selectedTag} ×
+                </Button>
+              )}
+              {searchTerm && (
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => setSearchTerm("")}
+                  className="text-xs"
+                >
+                  "{searchTerm}" ×
+                </Button>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Posts Grid */}
@@ -166,6 +264,26 @@ const Blog = () => {
                   <p className="text-muted-foreground line-clamp-3 mb-4">
                     {post.excerpt || 'Không có mô tả...'}
                   </p>
+                  
+                  {/* Tags */}
+                  {post.tags && post.tags.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mb-4">
+                      {post.tags.slice(0, 3).map((tag, index) => (
+                        <span
+                          key={index}
+                          className="text-xs px-2 py-1 bg-secondary text-secondary-foreground rounded-full"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                      {post.tags.length > 3 && (
+                        <span className="text-xs px-2 py-1 bg-muted text-muted-foreground rounded-full">
+                          +{post.tags.length - 3}
+                        </span>
+                      )}
+                    </div>
+                  )}
+                  
                   <Button asChild variant="outline" className="w-full">
                     <Link to={`/blog/${post.id}`}>
                       Đọc tiếp
@@ -178,16 +296,23 @@ const Blog = () => {
         ) : (
           <div className="text-center py-12">
             <p className="text-muted-foreground text-lg">
-              {searchTerm ? `Không tìm thấy bài viết nào với từ khóa "${searchTerm}"` : 'Chưa có bài viết nào được đăng tải.'}
+              {searchTerm || selectedTag 
+                ? 'Không tìm thấy bài viết nào phù hợp với bộ lọc của bạn.' 
+                : 'Chưa có bài viết nào được đăng tải.'
+              }
             </p>
-            {searchTerm && (
-              <Button 
-                variant="outline" 
-                onClick={() => setSearchTerm("")}
-                className="mt-4"
-              >
-                Xóa tìm kiếm
-              </Button>
+            {(searchTerm || selectedTag) && (
+              <div className="mt-4 space-x-2">
+                <Button 
+                  variant="outline" 
+                  onClick={() => {
+                    setSearchTerm("");
+                    setSelectedTag("");
+                  }}
+                >
+                  Xóa tất cả bộ lọc
+                </Button>
+              </div>
             )}
           </div>
         )}

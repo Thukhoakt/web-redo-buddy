@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { 
@@ -9,7 +9,8 @@ import {
   DropdownMenuSeparator 
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Search, User, LogOut, Settings, FileText, Users } from "lucide-react";
+import { Search, User, LogOut, Settings, FileText, Users, ChevronDown, Menu, X } from "lucide-react";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -18,14 +19,40 @@ interface HeaderProps {
   isAdmin: boolean;
 }
 
+interface Tag {
+  id: string;
+  name: string;
+  slug: string;
+  color: string;
+}
+
 const Header = ({ user, isAdmin }: HeaderProps) => {
   const location = useLocation();
   const { toast } = useToast();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [tags, setTags] = useState<Tag[]>([]);
+
+  useEffect(() => {
+    fetchTags();
+  }, []);
+
+  const fetchTags = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('tags')
+        .select('*')
+        .order('name');
+      
+      if (error) throw error;
+      setTags(data || []);
+    } catch (error) {
+      console.error('Error fetching tags:', error);
+    }
+  };
 
   const navigation = [
     { name: "HOME", href: "/", current: location.pathname === "/" },
-    { name: "BLOG", href: "/blog", current: location.pathname === "/blog" },
     { name: "YOUTUBE", href: "#", current: false },
     { name: "Email", href: "#", current: false },
     { name: "TÀI LIỆU", href: "#", current: false },
@@ -58,7 +85,7 @@ const Header = ({ user, isAdmin }: HeaderProps) => {
           </Link>
 
           {/* Navigation */}
-          <nav className="hidden md:flex items-center space-x-8">
+          <nav className="hidden lg:flex items-center space-x-8">
             {navigation.map((item) => (
               <Link
                 key={item.name}
@@ -72,10 +99,129 @@ const Header = ({ user, isAdmin }: HeaderProps) => {
                 {item.name}
               </Link>
             ))}
+            
+            {/* Blog Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger className="flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
+                BLOG
+                <ChevronDown className="h-4 w-4" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56 bg-background/95 backdrop-blur">
+                <DropdownMenuItem asChild>
+                  <Link to="/blog" className="flex items-center">
+                    Tất cả bài viết
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                {tags.length > 0 && (
+                  <>
+                    <div className="px-2 py-1.5 text-xs font-medium text-muted-foreground">
+                      Danh mục
+                    </div>
+                    {tags.map((tag) => (
+                      <DropdownMenuItem key={tag.id} asChild>
+                        <Link to={`/blog?tag=${tag.slug}`} className="flex items-center">
+                          <div 
+                            className="w-3 h-3 rounded-full mr-2" 
+                            style={{ backgroundColor: tag.color }}
+                          />
+                          {tag.name}
+                        </Link>
+                      </DropdownMenuItem>
+                    ))}
+                  </>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </nav>
 
+          {/* Mobile menu button */}
+          <div className="lg:hidden">
+            <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <Menu className="h-5 w-5" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-80">
+                <div className="flex flex-col space-y-4 mt-8">
+                  {navigation.map((item) => (
+                    <Link
+                      key={item.name}
+                      to={item.href}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="text-lg font-medium text-foreground hover:text-primary transition-colors"
+                    >
+                      {item.name}
+                    </Link>
+                  ))}
+                  
+                  <div className="border-t pt-4">
+                    <h3 className="text-lg font-medium text-foreground mb-3">Blog</h3>
+                    <Link
+                      to="/blog"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="block text-muted-foreground hover:text-primary transition-colors mb-2"
+                    >
+                      Tất cả bài viết
+                    </Link>
+                    {tags.map((tag) => (
+                      <Link
+                        key={tag.id}
+                        to={`/blog?tag=${tag.slug}`}
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className="flex items-center text-muted-foreground hover:text-primary transition-colors mb-2"
+                      >
+                        <div 
+                          className="w-3 h-3 rounded-full mr-2" 
+                          style={{ backgroundColor: tag.color }}
+                        />
+                        {tag.name}
+                      </Link>
+                    ))}
+                  </div>
+                  
+                  {user && (
+                    <div className="border-t pt-4">
+                      {isAdmin && (
+                        <Link
+                          to="/create-post"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                          className="block text-muted-foreground hover:text-primary transition-colors mb-2"
+                        >
+                          Tạo bài viết
+                        </Link>
+                      )}
+                      <button
+                        onClick={() => {
+                          handleSignOut();
+                          setIsMobileMenuOpen(false);
+                        }}
+                        className="block text-muted-foreground hover:text-primary transition-colors"
+                      >
+                        Đăng xuất
+                      </button>
+                    </div>
+                  )}
+                  
+                  {!user && (
+                    <div className="border-t pt-4">
+                      <Link
+                        to="/auth"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className="block text-muted-foreground hover:text-primary transition-colors"
+                      >
+                        Đăng nhập
+                      </Link>
+                    </div>
+                  )}
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
+
           {/* Right side */}
-          <div className="flex items-center space-x-4">
+          <div className="hidden lg:flex items-center space-x-4">
             {/* Search */}
             <Button 
               variant="ghost" 

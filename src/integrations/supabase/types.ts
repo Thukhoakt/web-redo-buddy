@@ -58,6 +58,7 @@ export type Database = {
           featured_image: string | null
           id: string
           published: boolean | null
+          tags: string[] | null
           title: string
           updated_at: string | null
         }
@@ -69,6 +70,7 @@ export type Database = {
           featured_image?: string | null
           id?: string
           published?: boolean | null
+          tags?: string[] | null
           title: string
           updated_at?: string | null
         }
@@ -80,6 +82,7 @@ export type Database = {
           featured_image?: string | null
           id?: string
           published?: boolean | null
+          tags?: string[] | null
           title?: string
           updated_at?: string | null
         }
@@ -118,6 +121,36 @@ export type Database = {
           phone?: string | null
           updated_at?: string | null
           username?: string | null
+        }
+        Relationships: []
+      }
+      tags: {
+        Row: {
+          color: string | null
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          slug?: string
+          updated_at?: string
         }
         Relationships: []
       }
