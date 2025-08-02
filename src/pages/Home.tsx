@@ -74,9 +74,6 @@ const Home = () => {
             John Deus
           </h1>
           <div className="w-24 h-1 bg-primary mx-auto mb-8"></div>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Chào mừng đến với blog cá nhân của John Deus
-          </p>
         </div>
       </section>
 
