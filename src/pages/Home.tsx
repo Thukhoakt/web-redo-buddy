@@ -68,12 +68,16 @@ const Home = () => {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="bg-gradient-hero py-20 lg:py-32">
-        <div className="container mx-auto px-4 text-center">
-          <h1 className="text-4xl lg:text-6xl font-bold text-foreground mb-6">
+      <section className="bg-gradient-hero py-20 lg:py-32 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-primary opacity-5"></div>
+        <div className="container mx-auto px-4 text-center relative">
+          <h1 className="text-4xl lg:text-6xl font-display font-bold text-foreground mb-6 animate-fade-in">
             John Deus
           </h1>
-          <div className="w-24 h-1 bg-primary mx-auto mb-8"></div>
+          <div className="w-24 h-1 bg-primary mx-auto mb-8 animate-slide-up shadow-primary"></div>
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto animate-fade-in" style={{animationDelay: '0.3s'}}>
+            Chào mừng đến với blog cá nhân - Nơi chia sẻ kiến thức và kinh nghiệm
+          </p>
         </div>
       </section>
 
@@ -108,7 +112,7 @@ const Home = () => {
           ) : posts.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {posts.map((post) => (
-                <Card key={post.id} className="group hover:shadow-hover transition-all duration-300 transform hover:-translate-y-1">
+                <Card key={post.id} className="group hover-lift bg-gradient-card border-0 shadow-elegant hover:shadow-hover animate-scale-in" style={{animationDelay: `${0.1 * (posts.indexOf(post) + 1)}s`}}>
                   <div className="aspect-video overflow-hidden rounded-t-lg">
                     {post.featured_image ? (
                       <img
