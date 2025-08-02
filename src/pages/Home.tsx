@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { CalendarDays, User } from "lucide-react";
+import { CalendarDays, User, MessageCircle } from "lucide-react";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
 
@@ -75,9 +75,6 @@ const Home = () => {
             John Deus
           </h1>
           <div className="w-24 h-1 bg-primary mx-auto mb-8 animate-slide-up shadow-primary"></div>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto animate-fade-in" style={{animationDelay: '0.3s'}}>
-            Chào mừng đến với blog cá nhân - Nơi chia sẻ kiến thức và kinh nghiệm
-          </p>
         </div>
       </section>
 
@@ -175,6 +172,27 @@ const Home = () => {
               </Button>
             </div>
           )}
+        </div>
+      </section>
+
+      {/* Message Button */}
+      <section className="py-8 bg-gradient-card">
+        <div className="container mx-auto px-4 text-center">
+          <Button 
+            asChild 
+            size="lg" 
+            className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-primary hover-lift"
+          >
+            <a 
+              href="https://www.facebook.com/thukhoakt" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2"
+            >
+              <MessageCircle className="h-5 w-5" />
+              Nhắn tin Facebook
+            </a>
+          </Button>
         </div>
       </section>
 
