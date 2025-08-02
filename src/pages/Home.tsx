@@ -72,7 +72,7 @@ const Home = () => {
         <div className="absolute inset-0 bg-gradient-primary opacity-5"></div>
         <div className="container mx-auto px-4 text-center relative">
           <h1 className="text-4xl lg:text-6xl font-display font-bold text-foreground mb-6 animate-fade-in">
-            John D
+            John Deus
           </h1>
           <div className="w-24 h-1 bg-primary mx-auto mb-8 animate-slide-up shadow-primary"></div>
         </div>
